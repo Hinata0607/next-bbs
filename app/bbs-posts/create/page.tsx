@@ -4,6 +4,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useRouter } from 'next/navigation'
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -20,6 +21,8 @@ const formSchema = z.object({
 
 const CreateBSPage = () => {
 
+  const router = useRouter();
+
     const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -29,9 +32,23 @@ const CreateBSPage = () => {
         }
     })
 
-    const onSubmit = async () => {
+    const onSubmit = async (value: z.infer<typeof formSchema>) => {
+      const { title, username, content } = value;
         // supabaseeに保存するためのAPIをたたく
-
+      try {
+        await fetch("http://localhost:3000/api/post", {
+          // SSR(掲示板は更新が頻繁かもしれないので)
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username, content, title }),
+        });
+        router.push("/");
+        router.refresh();
+      } catch (err) {
+        console.error(err);
+      }
     }
 
   return (

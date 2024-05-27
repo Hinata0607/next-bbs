@@ -11,3 +11,15 @@ export async function GET(req: Request) {
 
 // route.tsはnextjsで決められた名前
 // api/post階層にあるので、http://localhost:3000/api/post に対するGETリクエストが発火
+
+export async function POST(req: Request) {
+    const { username, title, content } = await req.json();
+    const allBBSPosts = await prisma.post.create({
+        data: {
+            username,
+            title,
+            content,
+        }
+    });
+    return NextResponse.json(allBBSPosts);
+}
